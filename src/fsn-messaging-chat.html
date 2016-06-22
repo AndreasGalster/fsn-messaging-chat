@@ -1,0 +1,157 @@
+<dom-module id="fsn-messaging-chat">
+  <template>
+  <style include="houseme-styles"></style>
+  <style>
+    :host {
+      display: block;
+      height: calc(100vh - 64px);
+      /*overflow-y: scroll;*/
+      @apply(--layout-vertical);
+    }
+
+    main {
+      overflow-y: scroll;
+      @apply(--layout-flex);
+    }
+
+    section {
+      @apply(--layout-horizontal);
+      margin: 25px 15px;
+    }
+
+    img {
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+    }
+
+    div:before, div:after {
+    	content: "";
+    	position: absolute;
+    	border-left  : 10px solid transparent;
+      top: 25px;
+      left: -10px;
+    }
+
+    div:before {
+    	border-bottom: 10px solid #f1f1f1;
+      margin-top: -10px;
+    }
+
+    div:after{
+    	border-left: 10px solid #f1f1f1;
+    }
+
+    div {
+
+      margin-left: 15px;
+      background: #f1f1f1;
+      padding: 15px;
+      border-radius: 4px;
+      /*border: 1px solid black;*/
+      /*box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);*/
+      background-clip: padding-box;
+    	position: relative;
+      @apply(--layout-flex);
+
+    }
+
+    div, div:after, div:before {
+      /*border: 1px solid black;*/
+    }
+
+  </style>
+
+    <main>
+      <template is='dom-repeat' items=[[message.messages]]>
+        <section class="me">
+          <img src='http://graph.facebook.com/[[getImage(item.userid)]]/picture?type=square' />
+          <div>[[item.content]]</div>
+        </section>
+      </template>
+    </main>
+
+    <fusion-messaging-input message-id=[[messageId]]></fusion-messaging-input>
+
+  </template>
+</dom-module>
+
+
+<script>
+  require('@polymer/polymer/polymer.html');
+  require('@polymer/paper-button/paper-button.html');
+  require('@polymer/iron-flex-layout/iron-flex-layout.html');
+
+  require('@andreasgalster/fsn-boilerplate/fsn-boilerplate.html');
+  require('@andreasgalster/fsn-messaging-input/fsn-messaging-input.html');
+
+  Polymer({
+    is: 'fsn-messaging-chat',
+    behaviors:[mwcMixin],
+    properties: {
+      messageId: {
+        type: String,
+        observer: 'tracker'
+      },
+      messages: Array
+    },
+    listeners: {
+      'fsn-message-sent': 'scrollDown'
+    },
+    tracker: function() {
+      console.log('other guy');
+      console.log(this.messageId);
+      console.log('me');
+      console.log(Meteor.userId());
+
+      this.message = Messages.findOne({ $and: [{userids: Meteor.userId()}, {userids: this.messageId}] });
+    },
+    getImage: function(userid) {
+      // console.log(userids);
+      let user = Meteor.users.findOne({ _id: userid })
+      return user.services.facebook.id;
+      // Meteor.users.findOne({ $or: [{_id: Meteor.userId()}, {_id: this.messageId}] }
+    },
+    scrollDown: function() {
+      var scrollBottom = this.$$('main').scrollTop + this.$$('main').offsetHeight;
+      this.$$('main').scrollTop = scrollBottom;
+      // var scrollBottom = $('.chat_scrollable').scrollTop() + $('#performance_wrapper').height();
+    }
+
+  });
+  //
+  //
+  //
+  //
+  // Template.message.helpers({
+
+  //   messageRead: function() {
+  //
+  //     var array = Messages.findOne({_id: Session.get('messageID') }).messageread;
+  //
+  //     var evens = _.filter(array, function(obj) {
+  //         return ~obj.userid.indexOf(Iron.controller().state.get('chatId'));
+  //     });
+  //
+  //     Messages.update(
+  //       { _id: Session.get('messageID') },
+  //       {
+  //         $set: {
+  //           messageread:
+  //           [
+  //             {
+  //             userid: Iron.controller().state.get('chatId'),
+  //               messageread: evens[0].messageread
+  //             },
+  //             {
+  //             userid: Meteor.userId(),
+  //               messageread: true
+  //             },
+  //           ]
+  //         }
+  //       }
+  //     );
+  //   },
+  //
+  //
+  // });
