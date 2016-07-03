@@ -1,6 +1,6 @@
 {
   "name": "@andreasgalster/fsn-messaging-chat",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "fsn-messaging-chat is a set of basic shared styles, similar to bootstrap",
   "main": "fsn-messaging-chat.html",
   "scripts": {
