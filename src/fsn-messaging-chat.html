@@ -65,7 +65,7 @@
     <main>
 
       <template is='dom-if' if=[[userIdAvailable(toUserId)]]>
-        <img class='avatar' item-icon src='http://graph.facebook.com/[[getUserImage(toUserId)]]/picture?type=square'>
+        <img class='avatar' item-icon src='https://graph.facebook.com/[[getUserImage(toUserId)]]/picture?type=square'>
         <h1>[[getUserName(toUserId)]]</h1>
       </template>
 
@@ -73,7 +73,7 @@
       <template is='dom-repeat' items=[[messages]]>
         <!-- <h1>[[item.messageText]]</h1> -->
         <section class="me">
-          <img src='http://graph.facebook.com/[[getUserImage(item.fromUserId)]]/picture?type=square' />
+          <img src='https://graph.facebook.com/[[getUserImage(item.fromUserId)]]/picture?type=square' />
           <div>[[item.messageText]]</div>
         </section>
       </template>
