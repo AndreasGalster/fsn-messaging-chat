@@ -64,9 +64,10 @@
 
     <main>
 
-
-      <!-- <img class='avatar' item-icon src='http://graph.facebook.com/[[singleUser.services.facebook.id]]/picture?type=square'> -->
-      <!-- <h1>[[singleUser.services.facebook.first_name]]</h1> -->
+      <template is='dom-if' if=[[userIdAvailable(toUserId)]]>
+        <img class='avatar' item-icon src='http://graph.facebook.com/[[getUserImage(toUserId)]]/picture?type=square'>
+        <h1>[[getUserName(toUserId)]]</h1>
+      </template>
 
 
       <template is='dom-repeat' items=[[messages]]>
@@ -99,8 +100,8 @@
 
   require('@andreasgalster/fsn-boilerplate/dist/fsn-boilerplate.html');
 
-  require('../../fsn-messaging-input/dist/fsn-messaging-input.html');
-  // require('@andreasgalster/fsn-messaging-input/dist/fsn-messaging-input.html');
+  // require('../../fsn-messaging-input/src/fsn-messaging-input.html');
+  require('@andreasgalster/fsn-messaging-input/dist/fsn-messaging-input.html');
 
   Polymer({
     is: 'fsn-messaging-chat',
@@ -134,6 +135,11 @@
       //     }
       //   ).fetch();
       // });
+    },
+    userIdAvailable: function(toUserId) {
+      if (toUserId) {
+        return true
+      }
     },
     getMessages: function() {
       console.log(`subscribing to ${this.messageId}`);
@@ -182,12 +188,20 @@
       // ).fetch();
       console.log(this.messages);
     },
-    getUserImage: function(fromUserId) {
+    getUserImage: function(userId) {
       console.log( this._subsReady() );
       // console.log(userids);
-      let user = Meteor.users.findOne({ _id: fromUserId });
+      let user = Meteor.users.findOne({ _id: userId });
       console.log(user);
       return user.services.facebook.id;
+      // Meteor.users.findOne({ $or: [{_id: Meteor.userId()}, {_id: this.messageId}] }
+    },
+    getUserName: function(userId) {
+      console.log( this._subsReady() );
+      // console.log(userids);
+      let user = Meteor.users.findOne({ _id: userId });
+      console.log(user);
+      return user.services.facebook.first_name;
       // Meteor.users.findOne({ $or: [{_id: Meteor.userId()}, {_id: this.messageId}] }
     },
     scrollDown: function() {
