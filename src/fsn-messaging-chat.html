@@ -87,7 +87,7 @@
       </template> -->
     </main>
 
-    <fsn-messaging-input message-id=[[messageId]] to-user-id=[[toUserId]] user-selected=[[toUserId]] private small></fsn-messaging-input>
+    <fsn-messaging-input message-id=[[messageId]] to-user-id=[[toUserId]] user-selected=[[userSelected]] private small></fsn-messaging-input>
 
   </template>
 </dom-module>
@@ -117,6 +117,7 @@
         // notify: true,
         observer: '_subscribeUser'
       },
+      userSelected: Boolean
     },
     _subscribeUser: function(toUserId) {
       // this.subscribe('SingleUserTeaser', toUserId);
