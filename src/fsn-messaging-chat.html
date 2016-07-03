@@ -63,15 +63,30 @@
   </style>
 
     <main>
+
+
+      <!-- <img class='avatar' item-icon src='http://graph.facebook.com/[[singleUser.services.facebook.id]]/picture?type=square'> -->
+      <!-- <h1>[[singleUser.services.facebook.first_name]]</h1> -->
+
+
+      <template is='dom-repeat' items=[[messages]]>
+        <!-- <h1>[[item.messageText]]</h1> -->
+        <section class="me">
+          <img src='http://graph.facebook.com/[[getUserImage(item.fromUserId)]]/picture?type=square' />
+          <div>[[item.messageText]]</div>
+        </section>
+      </template>
+
+<!--
       <template is='dom-repeat' items=[[message.messages]]>
         <section class="me">
           <img src='http://graph.facebook.com/[[getImage(item.userid)]]/picture?type=square' />
           <div>[[item.content]]</div>
         </section>
-      </template>
+      </template> -->
     </main>
 
-    <fusion-messaging-input message-id=[[messageId]]></fusion-messaging-input>
+    <fsn-messaging-input message-id=[[messageId]] to-user-id=[[toUserId]] private small></fsn-messaging-input>
 
   </template>
 </dom-module>
@@ -83,7 +98,9 @@
   require('@polymer/iron-flex-layout/iron-flex-layout.html');
 
   require('@andreasgalster/fsn-boilerplate/dist/fsn-boilerplate.html');
-  require('@andreasgalster/fsn-messaging-input/dist/fsn-messaging-input.html');
+
+  require('../../fsn-messaging-input/src/fsn-messaging-input.html');
+  // require('@andreasgalster/fsn-messaging-input/dist/fsn-messaging-input.html');
 
   Polymer({
     is: 'fsn-messaging-chat',
@@ -91,67 +108,91 @@
     properties: {
       messageId: {
         type: String,
-        observer: 'tracker'
+        observer: 'getMessages'
       },
-      messages: Array
+      messages: Array,
+      toUserId: {
+        type: String,
+        // notify: true,
+        observer: '_subscribeUser'
+      },
+    },
+    _subscribeUser: function(toUserId) {
+      // this.subscribe('SingleUserTeaser', toUserId);
     },
     listeners: {
       'fsn-message-sent': 'scrollDown'
     },
-    tracker: function() {
-      console.log('other guy');
-      console.log(this.messageId);
-      console.log('me');
-      console.log(Meteor.userId());
-
-      this.message = Messages.findOne({ $and: [{userids: Meteor.userId()}, {userids: this.messageId}] });
+    attached: function() {
+    //   this.subscribe('PrivateMessages');
+      // this.autorun( () => {
+      //   this.messages = PrivateMessagesDetail.find(
+      //     // { messageId: this.messageId },
+      //     {  },
+      //     {
+      //       sort: {createdAt: 1}
+      //     }
+      //   ).fetch();
+      // });
     },
-    getImage: function(userid) {
+    getMessages: function() {
+      console.log(`subscribing to ${this.messageId}`);
+      // this._removeSubs(this.messageId);
+      this.subscribe('PrivateMessagesDetail', this.messageId);
+      // this.tracker();
+      this.autorun( () => {
+        this.messages = PrivateMessagesDetail.find(
+          { messageId: this.messageId },
+          // {  },
+          {
+            sort: {createdAt: 1}
+          }
+        ).fetch();
+      });
+
+
+      // this.subscribe('PrivateMessagesDetail', "repwEBDTRWStLeZcj");
+    },
+    tracker: function() {
+
+      // this.singleUser = Meteor.users.findOne({_id: this.toUserId});
+
+
+      // this.messages = PrivateMessagesDetail.find(
+      //   { messageId: this.messageId },
+      //   // {},
+      //   {
+      //     sort: {createdAt: 1}
+      //   }
+      // ).fetch();
+
+
+      // get only the messageId currently relevant
+      // note, we subscribe to only messageId needed
+      // as the user clicks on more messages the subscription adds up
+      // this.autorun(function(){
+
+
+
+      // this.messages = PrivateMessagesDetail.find(
+      //   { messageId: this.messageId },
+      //   {
+      //     sort: {createdAt: 1}
+      //   }
+      // ).fetch();
+      console.log(this.messages);
+    },
+    getUserImage: function(fromUserId) {
+      console.log( this._subsReady() );
       // console.log(userids);
-      let user = Meteor.users.findOne({ _id: userid })
+      let user = Meteor.users.findOne({ _id: fromUserId });
+      console.log(user);
       return user.services.facebook.id;
       // Meteor.users.findOne({ $or: [{_id: Meteor.userId()}, {_id: this.messageId}] }
     },
     scrollDown: function() {
       var scrollBottom = this.$$('main').scrollTop + this.$$('main').offsetHeight;
       this.$$('main').scrollTop = scrollBottom;
-      // var scrollBottom = $('.chat_scrollable').scrollTop() + $('#performance_wrapper').height();
     }
 
   });
-  //
-  //
-  //
-  //
-  // Template.message.helpers({
-
-  //   messageRead: function() {
-  //
-  //     var array = Messages.findOne({_id: Session.get('messageID') }).messageread;
-  //
-  //     var evens = _.filter(array, function(obj) {
-  //         return ~obj.userid.indexOf(Iron.controller().state.get('chatId'));
-  //     });
-  //
-  //     Messages.update(
-  //       { _id: Session.get('messageID') },
-  //       {
-  //         $set: {
-  //           messageread:
-  //           [
-  //             {
-  //             userid: Iron.controller().state.get('chatId'),
-  //               messageread: evens[0].messageread
-  //             },
-  //             {
-  //             userid: Meteor.userId(),
-  //               messageread: true
-  //             },
-  //           ]
-  //         }
-  //       }
-  //     );
-  //   },
-  //
-  //
-  // });
