@@ -1,11 +1,10 @@
-<dom-module id="fsn-messaging-chat">
+<dom-module id='fsn-messaging-chat'>
   <template>
-  <style include="houseme-styles"></style>
+  <style include='houseme-styles'></style>
   <style>
     :host {
       display: block;
       height: calc(100vh - 64px);
-      /*overflow-y: scroll;*/
       @apply(--layout-vertical);
     }
 
@@ -26,7 +25,7 @@
     }
 
     div:before, div:after {
-    	content: "";
+    	content: '';
     	position: absolute;
     	border-left  : 10px solid transparent;
       top: 25px;
@@ -43,48 +42,31 @@
     }
 
     div {
-
       margin-left: 15px;
       background: #f1f1f1;
       padding: 15px;
       border-radius: 4px;
-      /*border: 1px solid black;*/
-      /*box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);*/
       background-clip: padding-box;
     	position: relative;
       @apply(--layout-flex);
-
     }
 
     div, div:after, div:before {
-      /*border: 1px solid black;*/
     }
 
   </style>
 
     <main>
 
-      <template is='dom-if' if=[[userIdAvailable(toUserId)]]>
-        <img class='avatar' item-icon src='https://graph.facebook.com/[[getUserImage(toUserId)]]/picture?type=square'>
-        <h1>[[getUserName(toUserId)]]</h1>
+      <template is='dom-if' if=[[!userSelected]]>
+        <template is='dom-repeat' items=[[messages]]>
+          <section class='me'>
+            <fb-user-image item-icon to-user-id=[[item.fromUserId]]></fb-user-image>
+            <div>[[item.messageText]]</div>
+          </section>
+        </template>
       </template>
 
-
-      <template is='dom-repeat' items=[[messages]]>
-        <!-- <h1>[[item.messageText]]</h1> -->
-        <section class="me">
-          <img src='https://graph.facebook.com/[[getUserImage(item.fromUserId)]]/picture?type=square' />
-          <div>[[item.messageText]]</div>
-        </section>
-      </template>
-
-<!--
-      <template is='dom-repeat' items=[[message.messages]]>
-        <section class="me">
-          <img src='http://graph.facebook.com/[[getImage(item.userid)]]/picture?type=square' />
-          <div>[[item.content]]</div>
-        </section>
-      </template> -->
     </main>
 
     <fsn-messaging-input message-id=[[messageId]] to-user-id=[[toUserId]] user-selected=[[userSelected]] private small></fsn-messaging-input>
@@ -100,6 +82,8 @@
 
   require('@andreasgalster/fsn-boilerplate/dist/fsn-boilerplate.html');
 
+  require('../../fb-user-image.html');
+
   // require('../../fsn-messaging-input/src/fsn-messaging-input.html');
   require('@andreasgalster/fsn-messaging-input/dist/fsn-messaging-input.html');
 
@@ -112,30 +96,11 @@
         observer: 'getMessages'
       },
       messages: Array,
-      toUserId: {
-        type: String,
-        // notify: true,
-        observer: '_subscribeUser'
-      },
+      toUserId: String,
       userSelected: Boolean
-    },
-    _subscribeUser: function(toUserId) {
-      // this.subscribe('SingleUserTeaser', toUserId);
     },
     listeners: {
       'fsn-message-sent': 'scrollDown'
-    },
-    attached: function() {
-    //   this.subscribe('PrivateMessages');
-      // this.autorun( () => {
-      //   this.messages = PrivateMessagesDetail.find(
-      //     // { messageId: this.messageId },
-      //     {  },
-      //     {
-      //       sort: {createdAt: 1}
-      //     }
-      //   ).fetch();
-      // });
     },
     userIdAvailable: function(toUserId) {
       if (toUserId) {
@@ -143,10 +108,7 @@
       }
     },
     getMessages: function() {
-      console.log(`subscribing to ${this.messageId}`);
-      // this._removeSubs(this.messageId);
       this.subscribe('PrivateMessagesDetail', this.messageId);
-      // this.tracker();
       this.autorun( () => {
         this.messages = PrivateMessagesDetail.find(
           { messageId: this.messageId },
@@ -156,57 +118,9 @@
           }
         ).fetch();
       });
-
-
-      // this.subscribe('PrivateMessagesDetail', "repwEBDTRWStLeZcj");
-    },
-    tracker: function() {
-
-      // this.singleUser = Meteor.users.findOne({_id: this.toUserId});
-
-
-      // this.messages = PrivateMessagesDetail.find(
-      //   { messageId: this.messageId },
-      //   // {},
-      //   {
-      //     sort: {createdAt: 1}
-      //   }
-      // ).fetch();
-
-
-      // get only the messageId currently relevant
-      // note, we subscribe to only messageId needed
-      // as the user clicks on more messages the subscription adds up
-      // this.autorun(function(){
-
-
-
-      // this.messages = PrivateMessagesDetail.find(
-      //   { messageId: this.messageId },
-      //   {
-      //     sort: {createdAt: 1}
-      //   }
-      // ).fetch();
-      console.log(this.messages);
-    },
-    getUserImage: function(userId) {
-      console.log( this._subsReady() );
-      // console.log(userids);
-      let user = Meteor.users.findOne({ _id: userId });
-      console.log(user);
-      return user.services.facebook.id;
-      // Meteor.users.findOne({ $or: [{_id: Meteor.userId()}, {_id: this.messageId}] }
-    },
-    getUserName: function(userId) {
-      console.log( this._subsReady() );
-      // console.log(userids);
-      let user = Meteor.users.findOne({ _id: userId });
-      console.log(user);
-      return user.services.facebook.first_name;
-      // Meteor.users.findOne({ $or: [{_id: Meteor.userId()}, {_id: this.messageId}] }
     },
     scrollDown: function() {
-      var scrollBottom = this.$$('main').scrollTop + this.$$('main').offsetHeight;
+      var scrollBottom = this.$$('main').scrollTop + this.$$('main').offsetHeight + 150;
       this.$$('main').scrollTop = scrollBottom;
     }
 
